@@ -276,6 +276,9 @@ def day_overview(day: str, topn: int = 10) -> pd.DataFrame:
 
 # ---------------------------- App ----------------------------
 
+# Download DB if not exists (for Render deployment)
+ensure_db()
+
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server  # Expose Flask server for gunicorn (Render deployment)
 app.title = "Seattle Crime Dashboard"
@@ -834,8 +837,6 @@ def update_by_polygon(selected_date, poly_geojson, hour_value, category_value, p
         fig_pie, fig_bar, markers, table, hour_label
     )
 
-
-ensure_db()
 
 if __name__ == "__main__":
     # Check if DB exists
