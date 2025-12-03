@@ -277,6 +277,7 @@ def day_overview(day: str, topn: int = 10) -> pd.DataFrame:
 # ---------------------------- App ----------------------------
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+server = app.server  # Expose Flask server for gunicorn (Render deployment)
 app.title = "Seattle Crime Dashboard"
 
 # Get initial date range from DB
