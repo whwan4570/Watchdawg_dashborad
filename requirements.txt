@@ -1,8 +1,0 @@
-dash==2.14.2
-dash-bootstrap-components==1.5.0
-dash-leaflet==0.1.23
-plotly==5.18.0
-pandas==2.1.4
-duckdb>=1.4.0
-requests
-gunicorn
