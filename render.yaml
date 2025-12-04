@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: seattle-crime-dashboard
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:server --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120
+    envVars:
+      - key: DATABRICKS_WAREHOUSE_ID
+        sync: false
+      - key: DATABRICKS_HOST
+        sync: false
+      - key: DATABRICKS_CLIENT_ID
+        sync: false
+      - key: DATABRICKS_CLIENT_SECRET
+        sync: false
+      - key: DATABRICKS_CATALOG
+        value: main
+      - key: DATABRICKS_SCHEMA
+        value: default
+      - key: PORT
+        fromService:
+          type: web
+          name: seattle-crime-dashboard
+          property: port
+      - key: DASH_DEBUG
+        value: "0"
+    healthCheckPath: /
+    autoDeploy: true
+
