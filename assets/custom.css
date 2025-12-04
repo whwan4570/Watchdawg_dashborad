@@ -1,0 +1,163 @@
+/* Custom slider styling for better draggability */
+.custom-slider .rc-slider-handle {
+    width: 24px !important;
+    height: 24px !important;
+    margin-top: -10px !important;
+    border: 3px solid #B7A57A !important;
+    background-color: #B7A57A !important;
+    cursor: grab !important;
+}
+
+.custom-slider .rc-slider-handle:active {
+    cursor: grabbing !important;
+    box-shadow: 0 0 0 5px rgba(183, 165, 122, 0.3) !important;
+}
+
+.custom-slider .rc-slider-handle:hover {
+    border-color: #d4c299 !important;
+    background-color: #d4c299 !important;
+}
+
+.custom-slider .rc-slider-track {
+    background-color: #B7A57A !important;
+    height: 6px !important;
+}
+
+.custom-slider .rc-slider-rail {
+    height: 6px !important;
+    background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.custom-slider .rc-slider-dot {
+    width: 10px !important;
+    height: 10px !important;
+    bottom: -2px !important;
+    border: 2px solid rgba(183, 165, 122, 0.5) !important;
+}
+
+.custom-slider .rc-slider-dot-active {
+    border-color: #B7A57A !important;
+}
+
+/* Make tooltip more visible */
+.custom-slider .rc-slider-tooltip {
+    font-size: 14px !important;
+}
+
+/* Dark theme dropdown styling */
+.Select-control {
+    background-color: #2b2b2b !important;
+    border-color: #444 !important;
+}
+
+.Select-menu-outer {
+    background-color: #2b2b2b !important;
+    border-color: #444 !important;
+}
+
+.Select-option {
+    background-color: #2b2b2b !important;
+    color: #e0e0e0 !important;
+}
+
+.Select-option:hover,
+.Select-option.is-focused {
+    background-color: #3a3a3a !important;
+    color: #B7A57A !important;
+}
+
+.Select-option.is-selected {
+    background-color: #1a1a1a !important;
+    color: #B7A57A !important;
+}
+
+.Select-value-label {
+    color: #e0e0e0 !important;
+}
+
+.Select-placeholder {
+    color: #888 !important;
+}
+
+.Select-input > input {
+    color: #e0e0e0 !important;
+}
+
+/* For newer Dash dropdown (dash-core-components) */
+.dash-dropdown .Select-control,
+div[class*="dropdown"] .Select-control {
+    background-color: #2b2b2b !important;
+    border: 1px solid #444 !important;
+}
+
+.dash-dropdown .Select-menu-outer,
+div[class*="dropdown"] .Select-menu-outer {
+    background-color: #2b2b2b !important;
+    border: 1px solid #444 !important;
+}
+
+.dash-dropdown .Select-option,
+div[class*="dropdown"] .Select-option {
+    background-color: #2b2b2b !important;
+    color: #e0e0e0 !important;
+}
+
+.dash-dropdown .Select-option:hover,
+div[class*="dropdown"] .Select-option:hover,
+.dash-dropdown .Select-option.is-focused,
+div[class*="dropdown"] .Select-option.is-focused {
+    background-color: #3a3a3a !important;
+    color: #B7A57A !important;
+}
+
+.dash-dropdown .Select-value-label,
+div[class*="dropdown"] .Select-value-label {
+    color: #e0e0e0 !important;
+}
+
+/* DataTable filter input styling */
+.dash-filter input {
+    background-color: #2b2b2b !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #444 !important;
+}
+
+.dash-filter input::placeholder {
+    color: #888 !important;
+}
+
+.dash-filter input:focus {
+    background-color: #3a3a3a !important;
+    border-color: #B7A57A !important;
+    outline: none !important;
+}
+
+/* DataTable cell input styling */
+.dash-spreadsheet-container .dash-spreadsheet-inner input {
+    background-color: #2b2b2b !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #444 !important;
+}
+
+.dash-spreadsheet-container .dash-spreadsheet-inner input:focus {
+    background-color: #3a3a3a !important;
+    border-color: #B7A57A !important;
+}
+
+/* DataTable filter cell styling */
+.dash-spreadsheet .dash-filter {
+    background-color: #1a1a1a !important;
+}
+
+.dash-spreadsheet .dash-filter input {
+    background-color: #2b2b2b !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #444 !important;
+    padding: 6px !important;
+}
+
+.dash-spreadsheet .dash-filter input::placeholder {
+    color: #888 !important;
+    opacity: 1 !important;
+}
+
