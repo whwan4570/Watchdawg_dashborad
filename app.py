@@ -42,6 +42,7 @@ def load_from_parquet():
         print(f"🔄 Loading data from Parquet file: {PARQUET_FILE_PATH}")
         df = pd.read_parquet(PARQUET_FILE_PATH)
         print(f"📊 Read {len(df)} rows from Parquet")
+        print(f"📋 Columns in Parquet file: {list(df.columns)}")
         
         # Check if Parquet has already processed columns (lowercase with underscores)
         # or original CSV columns (with spaces and capitals)
@@ -92,6 +93,11 @@ def load_from_parquet():
                      'hazardness', 'latitude', 'longitude']].copy()
         else:
             print("⚠️  Unexpected column structure in Parquet file")
+            print(f"   Available columns: {list(df.columns)}")
+            print("   Expected either 'latitude'/'longitude' or 'Latitude'/'Longitude'")
+            # Try to use whatever columns are available
+            print("   Attempting to use available columns...")
+            # Return None to fall back to CSV or show error
             return None
         
         # Optimize memory usage - CRITICAL for Render free plan (512MB limit)
@@ -241,28 +247,43 @@ def load_all_data(force_refresh=False):
         return _data_cache.copy() if force_refresh else _data_cache
     
     # Try Parquet first (preferred format - smaller and faster)
+    print(f"🔍 Checking for data files...")
+    print(f"   Parquet path: {PARQUET_FILE_PATH}")
+    print(f"   CSV path: {CSV_FILE_PATH}")
+    print(f"   Parquet exists: {os.path.exists(PARQUET_FILE_PATH)}")
+    print(f"   CSV exists: {os.path.exists(CSV_FILE_PATH)}")
+    
     if os.path.exists(PARQUET_FILE_PATH):
         print(f"🔄 Loading data from Parquet file...")
         df = load_from_parquet()
         if df is not None and not df.empty:
             result = df.copy()
+            print(f"✅ Parquet load successful: {len(result)} records")
         else:
-            print("⚠️  Parquet load failed, falling back to CSV...")
+            print("⚠️  Parquet load failed or returned empty, falling back to CSV...")
             df = load_from_csv()
-            result = df if df is not None else pd.DataFrame(columns=[
-                'date', 'time', 'hour', 'datetime', 'offense', 'offense_sub_category',
-                'crime_against_category', 'location', 'area', 'precinct', 'sector',
-                'hazardness', 'latitude', 'longitude'
-            ])
+            if df is not None and not df.empty:
+                result = df
+                print(f"✅ CSV load successful: {len(result)} records")
+            else:
+                print("❌ Both Parquet and CSV loads failed")
+                result = pd.DataFrame(columns=[
+                    'date', 'time', 'hour', 'datetime', 'offense', 'offense_sub_category',
+                    'crime_against_category', 'location', 'area', 'precinct', 'sector',
+                    'hazardness', 'latitude', 'longitude'
+                ])
     else:
         # Load from CSV if Parquet doesn't exist
         print(f"🔄 Parquet file not found, loading from CSV...")
         df = load_from_csv()
-        if df is not None:
+        if df is not None and not df.empty:
             result = df
+            print(f"✅ CSV load successful: {len(result)} records")
         else:
-            print("❌ Both Parquet and CSV files not found.")
-            print("   Please ensure crime_data_gold.parquet or crime_data_gold.csv exists in the project directory")
+            print("❌ CSV file not found or load failed.")
+            print(f"   Checked paths:")
+            print(f"   - Parquet: {PARQUET_FILE_PATH}")
+            print(f"   - CSV: {CSV_FILE_PATH}")
             result = pd.DataFrame(columns=[
                 'date', 'time', 'hour', 'datetime', 'offense', 'offense_sub_category',
                 'crime_against_category', 'location', 'area', 'precinct', 'sector',
@@ -1010,17 +1031,44 @@ app.layout = dbc.Container(
 )
 def display_cache_info(_, refresh_count):
     """Display information about the data source."""
+    # Try to load data if cache is empty
     if _data_cache is None or len(_data_cache) == 0:
-        return html.Div([
-            html.I(className="bi bi-exclamation-triangle text-warning me-1"),
-            "No data loaded - check CSV file"
-        ], className="small text-warning")
+        print("⚠️  Cache is empty, attempting to load data...")
+        try:
+            df = load_all_data()
+            if df is not None and len(df) > 0:
+                record_count = len(df)
+                source = "Parquet" if os.path.exists(PARQUET_FILE_PATH) else "CSV"
+                return [
+                    html.Div(f"📊 {record_count:,} records", className="small"),
+                    html.Div(f"📁 Source: crime_data_gold.{source.lower()}", className="small")
+                ]
+        except Exception as e:
+            print(f"❌ Error loading data in display_cache_info: {e}")
+            import traceback
+            traceback.print_exc()
+        
+        # Check which files exist
+        parquet_exists = os.path.exists(PARQUET_FILE_PATH)
+        csv_exists = os.path.exists(CSV_FILE_PATH)
+        
+        if not parquet_exists and not csv_exists:
+            return html.Div([
+                html.I(className="bi bi-exclamation-triangle text-warning me-1"),
+                "No data file found - check Parquet or CSV file"
+            ], className="small text-warning")
+        else:
+            return html.Div([
+                html.I(className="bi bi-exclamation-triangle text-warning me-1"),
+                "Data loading failed - check logs"
+            ], className="small text-warning")
     
     record_count = len(_data_cache) if _data_cache is not None else 0
+    source = "Parquet" if os.path.exists(PARQUET_FILE_PATH) else "CSV"
     
     return [
         html.Div(f"📊 {record_count:,} records", className="small"),
-        html.Div("📁 Source: crime_data_gold.csv", className="small")
+        html.Div(f"📁 Source: crime_data_gold.{source.lower()}", className="small")
     ]
 
 # Toggle sidebar collapse/expand
