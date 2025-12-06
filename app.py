@@ -73,9 +73,26 @@ def load_from_sqlite():
     try:
         conn = get_db_connection()
         if not conn:
+            print(f"❌ Failed to get database connection")
+            print(f"   DB file path: {DB_FILE_PATH}")
+            print(f"   DB file exists: {os.path.exists(DB_FILE_PATH)}")
             return None
         
         print(f"🔄 Loading data from SQLite database: {DB_FILE_PATH}")
+        
+        # First check if table exists
+        print(f"   Checking if 'crimes' table exists...")
+        cursor = conn.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='crimes';")
+        table_exists = cursor.fetchone()
+        if not table_exists:
+            print(f"❌ Table 'crimes' does not exist in database")
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+            tables = cursor.fetchall()
+            print(f"   Available tables: {tables}")
+            return None
+        else:
+            print(f"✅ Table 'crimes' exists")
         
         # Query all data (can be optimized to load only what's needed)
         query = """
@@ -87,8 +104,47 @@ def load_from_sqlite():
         WHERE latitude IS NOT NULL AND longitude IS NOT NULL
         """
         
-        df = pd.read_sql_query(query, conn)
-        print(f"📊 Read {len(df)} rows from SQLite")
+        print(f"   Executing query...")
+        try:
+            df = pd.read_sql_query(query, conn)
+            print(f"📊 Read {len(df)} rows from SQLite")
+        except Exception as query_error:
+            print(f"❌ Error executing query: {query_error}")
+            import traceback
+            traceback.print_exc()
+            # Try to get table structure
+            cursor.execute("PRAGMA table_info(crimes);")
+            columns = cursor.fetchall()
+            print(f"   Table structure: {columns}")
+            return None
+        
+        if len(df) == 0:
+            print("⚠️  Warning: Query returned 0 rows")
+            # Try to get total count
+            cursor.execute("SELECT COUNT(*) FROM crimes;")
+            total_count = cursor.fetchone()[0]
+            print(f"   Total rows in crimes table: {total_count}")
+            
+            # Check if all rows have null coordinates
+            cursor.execute("SELECT COUNT(*) FROM crimes WHERE latitude IS NULL OR longitude IS NULL;")
+            null_coords_count = cursor.fetchone()[0]
+            print(f"   Rows with null coordinates: {null_coords_count}")
+            
+            if total_count > 0:
+                print("   ⚠️  All rows may have null coordinates, trying query without coordinate filter...")
+                query_no_filter = """
+                SELECT 
+                    date, time, hour, datetime, offense, offense_sub_category,
+                    crime_against_category, location, area, precinct, sector,
+                    hazardness, latitude, longitude
+                FROM crimes
+                LIMIT 10
+                """
+                df_sample = pd.read_sql_query(query_no_filter, conn)
+                print(f"   Sample query returned {len(df_sample)} rows")
+                if len(df_sample) > 0:
+                    print(f"   Sample data columns: {list(df_sample.columns)}")
+                    print(f"   Sample data with null coords: {df_sample[['latitude', 'longitude']].isnull().sum().to_dict()}")
         
         # Convert date column to datetime
         if 'date' in df.columns:
@@ -917,29 +973,54 @@ def display_cache_info(_, refresh_count):
     # Try to load data if cache is empty
     if _data_cache is None or len(_data_cache) == 0:
         print("⚠️  Cache is empty, attempting to load data...")
+        print(f"   DB file path: {DB_FILE_PATH}")
+        print(f"   DB file exists: {os.path.exists(DB_FILE_PATH)}")
+        
         try:
             df = load_all_data()
             if df is not None and len(df) > 0:
                 record_count = len(df)
+                print(f"✅ Data loaded successfully: {record_count:,} records")
                 return [
                     html.Div(f"📊 {record_count:,} records", className="small"),
                     html.Div("📁 Source: crime_data_gold.db", className="small")
                 ]
+            else:
+                print(f"⚠️  Data loaded but empty or None. df is None: {df is None}, df.empty: {df.empty if df is not None else 'N/A'}")
         except Exception as e:
             print(f"❌ Error loading data in display_cache_info: {e}")
             import traceback
             traceback.print_exc()
+            error_msg = str(e)[:100]  # Limit error message length
         
         # Check if database exists
         if not os.path.exists(DB_FILE_PATH):
+            print(f"❌ Database file not found at: {DB_FILE_PATH}")
             return html.Div([
                 html.I(className="bi bi-exclamation-triangle text-warning me-1"),
-                "No database file found - run: python convert_to_sqlite.py"
+                "No database file found - downloading from Google Drive..."
             ], className="small text-warning")
         else:
+            # Check if database is valid
+            try:
+                conn = sqlite3.connect(DB_FILE_PATH)
+                cursor = conn.cursor()
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+                tables = cursor.fetchall()
+                conn.close()
+                print(f"   Database tables: {tables}")
+                
+                if not tables or 'crimes' not in [t[0] for t in tables]:
+                    return html.Div([
+                        html.I(className="bi bi-exclamation-triangle text-warning me-1"),
+                        "Database exists but 'crimes' table not found"
+                    ], className="small text-warning")
+            except Exception as db_error:
+                print(f"❌ Error checking database: {db_error}")
+            
             return html.Div([
                 html.I(className="bi bi-exclamation-triangle text-warning me-1"),
-                "Data loading failed - check logs"
+                "Data loading failed - check server logs"
             ], className="small text-warning")
     
     record_count = len(_data_cache) if _data_cache is not None else 0
