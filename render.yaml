@@ -9,3 +9,6 @@ services:
         value: "3.11"
       - key: DASH_DEBUG
         value: "0"
+      # Optional: Override Google Drive URL for SQLite database
+      # - key: DB_GDRIVE_URL
+      #   value: "https://drive.google.com/file/d/174V6MxBsK-q_bLbzmEDuxp3e5CaBbUel/view?usp=sharing"
