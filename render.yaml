@@ -9,18 +9,3 @@ services:
         value: "3.11"
       - key: DASH_DEBUG
         value: "0"
-      # Databricks connection settings
-      - key: DATABRICKS_WAREHOUSE_ID
-        value: "27a3fd0190890b59"
-      - key: DATABRICKS_HOST
-        value: "https://fe-vm-aibi-embedded-analytics.cloud.databricks.com"
-      - key: DATABRICKS_CLIENT_ID
-        value: "10812f0e-db1e-4aeb-b82a-ed09d975160a"
-      - key: DATABRICKS_CLIENT_SECRET
-        value: "dose4a24c4e17ffcd55558aa32fb4b9943f4"
-      - key: DATABRICKS_CATALOG
-        value: "data_511"
-      - key: DATABRICKS_SCHEMA
-        value: "default"
-      - key: DATABRICKS_OIDC_URL
-        value: "https://dbc-962d4f8a-27db.cloud.databricks.com/oidc"
