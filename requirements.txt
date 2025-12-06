@@ -5,4 +5,5 @@ pandas
 numpy
 plotly
 gunicorn
-gdown
+pyarrow
+databricks-sql-connector
