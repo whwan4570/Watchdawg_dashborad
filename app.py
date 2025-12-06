@@ -240,7 +240,7 @@ def query_data_by_date_range(start_date=None, end_date=None, limit=None):
         traceback.print_exc()
         return pd.DataFrame()
 
-def load_all_data(force_refresh=False, start_date=None, end_date=None):
+def load_all_data(force_refresh=False, start_date=None, end_date=None, limit=None):
     """
     Load data from SQLite database with date range filter (memory efficient).
     
@@ -248,6 +248,7 @@ def load_all_data(force_refresh=False, start_date=None, end_date=None):
         force_refresh: Ignored (kept for compatibility)
         start_date: Start date (YYYY-MM-DD format) or None
         end_date: End date (YYYY-MM-DD format) or None
+        limit: Maximum number of rows to return (None = no limit)
         
     Returns:
         DataFrame with crime data
@@ -258,7 +259,7 @@ def load_all_data(force_refresh=False, start_date=None, end_date=None):
     if end_date and isinstance(end_date, (datetime, pd.Timestamp)):
         end_date = end_date.strftime('%Y-%m-%d')
     
-    return query_data_by_date_range(start_date=start_date, end_date=end_date)
+    return query_data_by_date_range(start_date=start_date, end_date=end_date, limit=limit)
 
 # ---------------------------- Spatial Functions ----------------------------
 
@@ -321,6 +322,7 @@ def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> fl
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.DARKLY], suppress_callback_exceptions=True)
 app.title = "Seattle Crime Dashboard"
+server = app.server  # Expose Flask server for gunicorn (Render deployment)
 
 # Get initial date range from DB
 initial_date_range = get_date_range()
