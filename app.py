@@ -1510,9 +1510,9 @@ def update_trend_chart(date_data, sort_order, metric):
             # Aggregate based on metric
             if metric == "hazard" and 'hazardness' in df.columns:
                 # Use average hazard score per period
-                df_trends = df[df['area'].isin(selected_areas)].groupby(['period', 'area'])['hazardness'].mean().reset_index(name='value')
+                df_trends = df[df['area'].isin(selected_areas)].groupby(['period', 'area'], observed=True)['hazardness'].mean().reset_index(name='value')
             else:
-                df_trends = df[df['area'].isin(selected_areas)].groupby(['period', 'area']).size().reset_index(name='value')
+                df_trends = df[df['area'].isin(selected_areas)].groupby(['period', 'area'], observed=True).size().reset_index(name='value')
             
             df_trends = df_trends.rename(columns={'period': 'date'})
             df_trends = df_trends.sort_values('date')
@@ -1586,7 +1586,7 @@ def update_trend_chart(date_data, sort_order, metric):
         
         fig.update_traces(
             mode='lines+markers',
-            line=dict(width=2, shape='spline', smoothing=1.0),  # Smooth curved lines
+            line=dict(width=2, shape='spline'),  # Smooth curved lines
             marker=dict(size=5),
             connectgaps=False,  # Don't connect across missing data
             hovertemplate=f'%{{y:.1f}} {hover_text}<extra></extra>'
@@ -1700,10 +1700,10 @@ def update_crime_type_chart(drill_level, selected_category, reset_counter, date_
         if drill_level == "category":
             # Category overview - stacked bar chart with subcategories inside each category
             # Group by category and subcategory
-            grouped = df.groupby(['crime_against_category', 'offense_sub_category']).size().reset_index(name='count')
+            grouped = df.groupby(['crime_against_category', 'offense_sub_category'], observed=True).size().reset_index(name='count')
             
             # Calculate total count per category for sorting
-            category_totals = grouped.groupby('crime_against_category')['count'].sum().sort_values(ascending=False)
+            category_totals = grouped.groupby('crime_against_category', observed=True)['count'].sum().sort_values(ascending=False)
             
             # Sort categories by total count
             sorted_categories = category_totals.index.tolist()
@@ -2159,7 +2159,7 @@ def update_map_points(poly_geojson, hour_value, category_value, neighborhood_val
                 ),
                 name=cat,
                 hovertemplate=f"{cat}<br>%{{text}}<br>Incidents at location: %{{customdata}}<extra></extra>",
-                text=cat_df['offense_sub_category'].fillna('Unknown'),
+                text=cat_df['offense_sub_category'].astype(str).fillna('Unknown'),
                 customdata=cat_df['location_freq']
             ))
         
