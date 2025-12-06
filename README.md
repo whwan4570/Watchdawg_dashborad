@@ -14,6 +14,12 @@ An interactive dashboard for visualizing Seattle crime data using Dash and SQLit
 - 🎯 **Crime Category Filter**: Filter by crime type (Person, Property, Society)
 - 📋 **Detailed Data Table**: View top 500 incidents with sorting and filtering
 
+## CRITICAL EVALUATION (SUCCESS, STRUGGLES ETC)
+
+Our interactive Seattle Crime Visualization was designed with a user-centered approach inspired by Cooper et al.’s About Face. From the beginning, we recognized that users evaluate safety differently depending on their goals, locations, and lived experiences. This insight led us to prioritize intuitive navigation, simple interaction, and a visualization that never makes users feel like they made a “wrong” choice. We focused on showing crime locations using spatial position—the most powerful visual encoding according to Bertin—to give users an instant, low-cognitive-load snapshot of citywide crime patterns. Additional details such as crime type and time of day were intentionally encoded with hue, size, and filters to enrich exploration without overwhelming users.
+
+We refined our filters to three key dimensions—neighborhood, crime type, and hour of day—balancing usability with the limits of our dataset. Neighborhoods were chosen because they align with how people naturally think about location; crime types were consolidated from 25+ categories into a smaller, more interpretable set; and time-of-day filtering allows users to personalize risk based on daily routines. To support coordinated exploration, we incorporated summary plots highlighting crime distributions before users dive into the map. Ultimately, our process was heavily informed by our desire to provide the user as much agency as we could. This visualization process that is rich in context yet simple to navigate, minimizing clutter while maximizing meaningful insight.
+
 ## Quick Start
 
 ### Option 1: Use the Deployed Version (Recommended)
@@ -29,7 +35,7 @@ Simply open the link in your browser - no setup required! The database will be a
 #### Prerequisites
 
 - Python 3.11 or higher
-- `crime_data_gold.db` SQLite database file (or it will be downloaded automatically)
+- `crime_data_gold.db` SQLite database file (or it will be downloaded automatically) or you can convert to db from csv with convert_to_sqlite.py.
 
 #### Setup Steps
 
