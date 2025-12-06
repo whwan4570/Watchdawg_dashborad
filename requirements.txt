@@ -6,3 +6,4 @@ numpy
 plotly
 gunicorn
 gdown
+requests
